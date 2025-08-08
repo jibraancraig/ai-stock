@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "name": "stock-ai-dashboard",
+  "builds": [
+    {
+      "src": "stock_ai_static.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/stock_ai_static.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/stock_ai_static.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}

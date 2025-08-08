@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock AI Dashboard - Redirecting...</title>
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0f0f 0%,
+          #1a0f0f 25%,
+          #2d1b1b 50%,
+          #3d2b2b 75%,
+          #4d3b3b 100%
+        );
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .loader {
+        text-align: center;
+      }
+      .spinner {
+        border: 3px solid rgba(139, 0, 0, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid #8b0000;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      h1 {
+        color: #8b0000;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader">
+      <div class="spinner"></div>
+      <h1>📈 Stock AI Dashboard</h1>
+      <p>Redirecting to dashboard...</p>
+    </div>
+    <script>
+      // Redirect to the main dashboard
+      window.location.href = "/stock_ai_static.html"
+    </script>
+  </body>
+</html>
