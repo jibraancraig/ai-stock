@@ -3781,11 +3781,20 @@
         advancedContainer.innerHTML = html
       }
 
-      // Enhanced chart update with advanced features
+            // Enhanced chart update with advanced features
       function updateChart(data, indicators, fibonacci, aiPatterns) {
+        console.log("Updating chart with data:", data ? data.length : "no data")
+        
+        // Show chart container
+        chartContainer.style.display = "block"
+        
         const ctx = document.getElementById("price-chart")
-        if (!ctx || !data || data.length === 0) return
+        if (!ctx || !data || data.length === 0) {
+          console.error("Chart update failed: missing canvas or data")
+          return
+        }
 
+        console.log("Canvas found, destroying existing chart...")
         // Destroy existing chart
         if (window.priceChart) {
           window.priceChart.destroy()
@@ -3914,7 +3923,9 @@
           },
         }
 
+        console.log("Creating new chart...")
         window.priceChart = new Chart(ctx, config)
+        console.log("Chart created successfully")
 
         // Add Fibonacci levels annotation if available
         if (fibonacci) {
