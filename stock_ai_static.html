@@ -139,6 +139,152 @@
         box-shadow: none;
       }
 
+      /* Filter Section */
+      .filter-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(139, 0, 0, 0.3);
+      }
+
+      .filter-title {
+        color: #8b0000;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn {
+        background: rgba(45, 27, 27, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.5);
+        border-radius: 8px;
+        color: #ffffff;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .filter-btn:hover {
+        background: rgba(139, 0, 0, 0.3);
+        border-color: #8b0000;
+      }
+
+      .filter-btn-active {
+        background: #8b0000;
+        border-color: #8b0000;
+        box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
+      }
+
+      .filter-btn-active:hover {
+        background: #a00000;
+      }
+
+      /* Stock List Section */
+      .stock-list-section {
+        background: rgba(45, 27, 27, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 0 2rem 2rem 2rem;
+        box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .stock-list-title {
+        color: #8b0000;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .stock-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+
+      .stock-item {
+        background: rgba(45, 27, 27, 0.8);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .stock-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
+        border-color: #8b0000;
+      }
+
+      .stock-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .stock-symbol {
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: #ffffff;
+      }
+
+      .stock-recommendation {
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .recommendation-buy {
+        background: rgba(40, 167, 69, 0.2);
+        color: #4ade80;
+        border: 1px solid #4ade80;
+      }
+
+      .recommendation-hold {
+        background: rgba(255, 193, 7, 0.2);
+        color: #fbbf24;
+        border: 1px solid #fbbf24;
+      }
+
+      .recommendation-sell {
+        background: rgba(220, 53, 69, 0.2);
+        color: #f87171;
+        border: 1px solid #f87171;
+      }
+
+      .stock-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .stock-detail {
+        color: #ffffff;
+      }
+
+      .stock-detail-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75rem;
+      }
+
       /* Cards Grid */
       .cards-grid {
         display: grid;
@@ -369,10 +515,35 @@
           />
           <button id="analyze-btn" class="analyze-btn">Analyse</button>
         </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <h6 class="filter-title">🎯 Filter by Recommendation</h6>
+          <div class="filter-buttons">
+            <button id="filter-all" class="filter-btn filter-btn-active">
+              All
+            </button>
+            <button id="filter-buy" class="filter-btn">BUY</button>
+            <button id="filter-hold" class="filter-btn">HOLD</button>
+            <button id="filter-sell" class="filter-btn">SELL</button>
+          </div>
+        </div>
       </div>
 
       <!-- Loading Output -->
       <div id="loading-output"></div>
+
+      <!-- Stock List Section -->
+      <div
+        id="stock-list-section"
+        class="stock-list-section"
+        style="display: none"
+      >
+        <h5 class="stock-list-title">📈 Stock Recommendations</h5>
+        <div id="stock-list" class="stock-list">
+          <!-- Stock items will be populated here -->
+        </div>
+      </div>
 
       <!-- Chart Container -->
       <div id="chart-container" class="chart-container" style="display: none">
@@ -487,6 +658,8 @@
       // Global variables
       let currentChart = null
       let stockData = null
+      let allStocksData = [] // Store all analyzed stocks
+      let currentFilter = "all" // Current filter state
 
       // DOM elements
       const symbolInput = document.getElementById("symbol-input")
@@ -500,6 +673,14 @@
       const chartContainer = document.getElementById("chart-container")
       const priceChart = document.getElementById("price-chart")
 
+      // Filter elements
+      const filterAll = document.getElementById("filter-all")
+      const filterBuy = document.getElementById("filter-buy")
+      const filterHold = document.getElementById("filter-hold")
+      const filterSell = document.getElementById("filter-sell")
+      const stockListSection = document.getElementById("stock-list-section")
+      const stockList = document.getElementById("stock-list")
+
       // Event listeners
       analyzeBtn.addEventListener("click", analyzeStock)
       symbolInput.addEventListener("keypress", function (e) {
@@ -507,6 +688,12 @@
           analyzeStock()
         }
       })
+
+      // Filter event listeners
+      filterAll.addEventListener("click", () => setFilter("all"))
+      filterBuy.addEventListener("click", () => setFilter("buy"))
+      filterHold.addEventListener("click", () => setFilter("hold"))
+      filterSell.addEventListener("click", () => setFilter("sell"))
 
       // Main analysis function
       async function analyzeStock() {
@@ -528,6 +715,31 @@
 
           stockData = data
 
+          // Generate recommendation for storage
+          const recommendation = generateRecommendation(data)
+
+          // Store stock data with recommendation
+          const stockInfo = {
+            symbol: symbol,
+            data: data,
+            recommendation: recommendation.recommendation,
+            confidence: recommendation.confidence,
+            price: data[data.length - 1].close,
+            priceChange: recommendation.price_change,
+            rsi: recommendation.rsi,
+            volumeRatio: recommendation.volume_ratio,
+          }
+
+          // Add to all stocks data (or update if exists)
+          const existingIndex = allStocksData.findIndex(
+            (stock) => stock.symbol === symbol
+          )
+          if (existingIndex >= 0) {
+            allStocksData[existingIndex] = stockInfo
+          } else {
+            allStocksData.push(stockInfo)
+          }
+
           // Update UI
           updateStockInfo(symbol, data)
           updateRecommendation(data)
@@ -535,6 +747,7 @@
           updateRiskAssessment(data)
           updateChart(symbol, data)
           updateStockTitle(symbol)
+          updateStockList() // Update the stock list with new data
 
           hideLoading()
           analyzeBtn.disabled = false
@@ -582,6 +795,101 @@
         }
 
         return data
+      }
+
+      // Generate recommendation function
+      function generateRecommendation(data) {
+        if (data.length < 20) {
+          return {
+            recommendation: "HOLD",
+            confidence: 0,
+            signals: ["Insufficient data for analysis"],
+            color: "warning",
+            price_change: 0,
+            rsi: 50,
+            volume_ratio: 1,
+          }
+        }
+
+        const latest = data[data.length - 1]
+        const prev20 = data[Math.max(0, data.length - 21)]
+
+        // Price trend
+        const priceChange = ((latest.close - prev20.close) / prev20.close) * 100
+
+        // RSI analysis
+        const rsi = calculateRSI(data)
+
+        // MACD analysis
+        const macd = calculateMACD(data)
+
+        // Volume analysis
+        const avgVolume =
+          data.reduce((sum, d) => sum + d.volume, 0) / data.length
+        const currentVolume = latest.volume
+        const volumeRatio = currentVolume / avgVolume
+
+        // Generate recommendation
+        let confidence = 0
+        const signals = []
+
+        if (priceChange > 5) {
+          signals.push(`Strong uptrend (+${priceChange.toFixed(1)}%)`)
+          confidence += 25
+        } else if (priceChange > 0) {
+          signals.push(`Slight uptrend (+${priceChange.toFixed(1)}%)`)
+          confidence += 15
+        } else if (priceChange < -5) {
+          signals.push(`Strong downtrend (${priceChange.toFixed(1)}%)`)
+          confidence -= 25
+        } else {
+          signals.push(`Sideways movement (${priceChange.toFixed(1)}%)`)
+          confidence += 5
+        }
+
+        if (rsi < 30) {
+          signals.push(`Oversold (RSI: ${rsi.toFixed(1)})`)
+          confidence += 20
+        } else if (rsi > 70) {
+          signals.push(`Overbought (RSI: ${rsi.toFixed(1)})`)
+          confidence -= 20
+        }
+
+        if (macd > 0) {
+          signals.push("MACD bullish")
+          confidence += 15
+        } else {
+          signals.push("MACD bearish")
+          confidence -= 15
+        }
+
+        if (volumeRatio > 1.5) {
+          signals.push(`High volume (${volumeRatio.toFixed(1)}x average)`)
+          confidence += 10
+        }
+
+        // Determine recommendation
+        let recommendation, color
+        if (confidence > 30) {
+          recommendation = "BUY"
+          color = "success"
+        } else if (confidence < -30) {
+          recommendation = "SELL"
+          color = "danger"
+        } else {
+          recommendation = "HOLD"
+          color = "warning"
+        }
+
+        return {
+          recommendation: recommendation,
+          confidence: Math.abs(confidence),
+          signals: signals,
+          color: color,
+          price_change: priceChange,
+          rsi: rsi,
+          volume_ratio: volumeRatio,
+        }
       }
 
       // Calculate technical indicators
@@ -686,67 +994,16 @@
       }
 
       function updateRecommendation(data) {
-        const indicators = calculateIndicators(data)
-        const latest = data[data.length - 1]
-        const prev20 = data[Math.max(0, data.length - 21)]
-
-        const priceChange = ((latest.close - prev20.close) / prev20.close) * 100
-        const rsi = indicators.rsi
-        const macd = indicators.macd
-
-        let confidence = 0
-        const signals = []
-
-        if (priceChange > 5) {
-          signals.push(`Strong uptrend (+${priceChange.toFixed(1)}%)`)
-          confidence += 25
-        } else if (priceChange > 0) {
-          signals.push(`Slight uptrend (+${priceChange.toFixed(1)}%)`)
-          confidence += 15
-        } else if (priceChange < -5) {
-          signals.push(`Strong downtrend (${priceChange.toFixed(1)}%)`)
-          confidence -= 25
-        } else {
-          signals.push(`Sideways movement (${priceChange.toFixed(1)}%)`)
-          confidence += 5
-        }
-
-        if (rsi < 30) {
-          signals.push(`Oversold (RSI: ${rsi.toFixed(1)})`)
-          confidence += 20
-        } else if (rsi > 70) {
-          signals.push(`Overbought (RSI: ${rsi.toFixed(1)})`)
-          confidence -= 20
-        }
-
-        if (macd > 0) {
-          signals.push("MACD bullish")
-          confidence += 15
-        } else {
-          signals.push("MACD bearish")
-          confidence -= 15
-        }
-
-        let recommendation, color
-        if (confidence > 30) {
-          recommendation = "BUY"
-          color = "success"
-        } else if (confidence < -30) {
-          recommendation = "SELL"
-          color = "danger"
-        } else {
-          recommendation = "HOLD"
-          color = "warning"
-        }
+        const recommendation = generateRecommendation(data)
 
         recommendationCard.innerHTML = `
                 <div class="card-content">
-                    <div class="alert alert-${color}">${recommendation} - Confidence: ${Math.abs(
-          confidence
-        ).toFixed(0)}%</div>
+                    <div class="alert alert-${recommendation.color}">${
+          recommendation.recommendation
+        } - Confidence: ${recommendation.confidence.toFixed(0)}%</div>
                     <h6 class="bold-text" style="margin-top: 1rem; margin-bottom: 0.5rem;">Key Signals:</h6>
                     <ul>
-                        ${signals
+                        ${recommendation.signals
                           .map((signal) => `<li>${signal}</li>`)
                           .join("")}
                     </ul>
@@ -755,23 +1012,18 @@
       }
 
       function updateTechnicalAnalysis(data) {
+        const recommendation = generateRecommendation(data)
         const indicators = calculateIndicators(data)
-        const latest = data[data.length - 1]
-        const prev20 = data[Math.max(0, data.length - 21)]
-        const priceChange = ((latest.close - prev20.close) / prev20.close) * 100
-        const avgVolume =
-          data.reduce((sum, d) => sum + d.volume, 0) / data.length
-        const volumeRatio = latest.volume / avgVolume
 
         technicalContent.innerHTML = `
                 <div class="card-content">
-                    <p class="regular-text">RSI: <span class="bold-number">${indicators.rsi.toFixed(
+                    <p class="regular-text">RSI: <span class="bold-number">${recommendation.rsi.toFixed(
                       1
                     )}</span></p>
                     <p class="regular-text">Price Change (20d): <span class="bold-number">${
-                      priceChange >= 0 ? "+" : ""
-                    }${priceChange.toFixed(1)}%</span></p>
-                    <p class="regular-text">Volume Ratio: <span class="bold-number">${volumeRatio.toFixed(
+                      recommendation.price_change >= 0 ? "+" : ""
+                    }${recommendation.price_change.toFixed(1)}%</span></p>
+                    <p class="regular-text">Volume Ratio: <span class="bold-number">${recommendation.volume_ratio.toFixed(
                       1
                     )}x average</span></p>
                     <p class="regular-text">MACD: <span class="bold-number">${indicators.macd.toFixed(
@@ -956,12 +1208,127 @@
             `
       }
 
+      // Filter functions
+      function setFilter(filter) {
+        currentFilter = filter
+
+        // Update active button
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.classList.remove("filter-btn-active")
+        })
+
+        switch (filter) {
+          case "all":
+            filterAll.classList.add("filter-btn-active")
+            break
+          case "buy":
+            filterBuy.classList.add("filter-btn-active")
+            break
+          case "hold":
+            filterHold.classList.add("filter-btn-active")
+            break
+          case "sell":
+            filterSell.classList.add("filter-btn-active")
+            break
+        }
+
+        updateStockList()
+      }
+
+      function updateStockList() {
+        if (allStocksData.length === 0) {
+          stockListSection.style.display = "none"
+          return
+        }
+
+        stockListSection.style.display = "block"
+
+        // Filter stocks based on current filter
+        let filteredStocks = allStocksData
+        if (currentFilter !== "all") {
+          filteredStocks = allStocksData.filter(
+            (stock) => stock.recommendation.toLowerCase() === currentFilter
+          )
+        }
+
+        // Sort by confidence (highest first)
+        filteredStocks.sort((a, b) => b.confidence - a.confidence)
+
+        // Generate HTML for stock list
+        stockList.innerHTML = filteredStocks
+          .map(
+            (stock) => `
+           <div class="stock-item" onclick="selectStock('${stock.symbol}')">
+             <div class="stock-item-header">
+               <div class="stock-symbol">${stock.symbol}</div>
+               <div class="stock-recommendation recommendation-${stock.recommendation.toLowerCase()}">
+                 ${stock.recommendation}
+               </div>
+             </div>
+             <div class="stock-details">
+               <div class="stock-detail">
+                 <div class="stock-detail-label">Price</div>
+                 $${stock.price.toFixed(2)}
+               </div>
+               <div class="stock-detail">
+                 <div class="stock-detail-label">Change</div>
+                 ${
+                   stock.priceChange >= 0 ? "+" : ""
+                 }${stock.priceChange.toFixed(1)}%
+               </div>
+               <div class="stock-detail">
+                 <div class="stock-detail-label">Confidence</div>
+                 ${stock.confidence.toFixed(0)}%
+               </div>
+               <div class="stock-detail">
+                 <div class="stock-detail-label">RSI</div>
+                 ${stock.rsi.toFixed(1)}
+               </div>
+             </div>
+           </div>
+         `
+          )
+          .join("")
+      }
+
+      function selectStock(symbol) {
+        // Find the stock data
+        const stock = allStocksData.find((s) => s.symbol === symbol)
+        if (stock) {
+          // Update the input and analyze
+          symbolInput.value = symbol
+          analyzeStock()
+
+          // Scroll to the chart
+          chartContainer.scrollIntoView({ behavior: "smooth" })
+        }
+      }
+
       // Initialize with default data
       window.addEventListener("load", function () {
         // Auto-analyze AAPL on page load
         setTimeout(() => {
           analyzeStock()
         }, 500)
+
+        // Add some popular stocks for demonstration
+        setTimeout(() => {
+          const popularStocks = [
+            "MSFT",
+            "GOOGL",
+            "AMZN",
+            "TSLA",
+            "NVDA",
+            "META",
+            "NFLX",
+          ]
+          popularStocks.forEach((symbol, index) => {
+            setTimeout(() => {
+              symbolInput.value = symbol
+              analyzeStock()
+            }, (index + 1) * 1000) // Analyze each stock with 1 second delay
+          })
+        }, 2000)
       })
     </script>
   </body>
