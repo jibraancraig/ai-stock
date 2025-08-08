@@ -768,21 +768,55 @@
       function generateMockData(symbol) {
         const days = 180
         const data = []
-        let basePrice = 150 + Math.random() * 100
+
+        // Create more realistic base prices for different stocks
+        const basePrices = {
+          AAPL: 175,
+          MSFT: 350,
+          GOOGL: 140,
+          AMZN: 180,
+          TSLA: 250,
+          NVDA: 800,
+          META: 300,
+          NFLX: 600,
+        }
+
+        let basePrice = basePrices[symbol] || 150 + Math.random() * 100
+
+        // Create trending patterns for different stocks
+        const trends = {
+          AAPL: 0.001, // Slight uptrend
+          MSFT: 0.002, // Strong uptrend
+          GOOGL: -0.001, // Slight downtrend
+          AMZN: 0.003, // Very strong uptrend
+          TSLA: -0.002, // Strong downtrend
+          NVDA: 0.004, // Very strong uptrend
+          META: 0.001, // Slight uptrend
+          NFLX: -0.001, // Slight downtrend
+        }
+
+        const trend = trends[symbol] || 0
 
         for (let i = 0; i < days; i++) {
           const date = new Date()
           date.setDate(date.getDate() - (days - i))
 
-          const volatility = 0.02
-          const change = (Math.random() - 0.5) * volatility
-          basePrice *= 1 + change
+          // Add trend component
+          const trendChange = trend * (days - i) * 0.1
 
-          const open = basePrice * (1 + (Math.random() - 0.5) * 0.01)
-          const high = Math.max(open, basePrice) * (1 + Math.random() * 0.02)
-          const low = Math.min(open, basePrice) * (1 - Math.random() * 0.02)
+          // Add random volatility
+          const volatility = 0.015
+          const randomChange = (Math.random() - 0.5) * volatility
+
+          // Combine trend and random movement
+          const totalChange = trendChange + randomChange
+          basePrice *= 1 + totalChange
+
+          const open = basePrice * (1 + (Math.random() - 0.5) * 0.005)
+          const high = Math.max(open, basePrice) * (1 + Math.random() * 0.01)
+          const low = Math.min(open, basePrice) * (1 - Math.random() * 0.01)
           const close = basePrice
-          const volume = 1000000 + Math.random() * 5000000
+          const volume = 1000000 + Math.random() * 3000000
 
           data.push({
             date: date.toISOString().split("T")[0],
@@ -870,10 +904,10 @@
 
         // Determine recommendation
         let recommendation, color
-        if (confidence > 30) {
+        if (confidence > 20) {
           recommendation = "BUY"
           color = "success"
-        } else if (confidence < -30) {
+        } else if (confidence < -20) {
           recommendation = "SELL"
           color = "danger"
         } else {
