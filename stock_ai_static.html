@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Machine Learning AI Investor</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+
+      * {
+        font-family: "Montserrat", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(
+          135deg,
+          #0f0f0f 0%,
+          #1a0f0f 25%,
+          #2d1b1b 50%,
+          #3d2b2b 75%,
+          #4d3b3b 100%
+        );
+        color: #ffffff;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .container {
+        background: transparent;
+        padding: 0;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      /* Header Styling */
+      .header-container {
+        text-align: center;
+        padding: 2rem 0 1rem 0;
+        position: relative;
+      }
+
+      .main-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #8b0000;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .creator-signature {
+        position: absolute;
+        top: 1rem;
+        right: 2rem;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 400;
+      }
+
+      /* Search Section */
+      .search-section {
+        background: rgba(45, 27, 27, 0.8);
+        border: 1px solid rgba(139, 0, 0, 0.4);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 0 2rem 2rem 2rem;
+        box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .search-title {
+        color: #8b0000;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .search-input-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .search-input {
+        flex: 1;
+        background: rgba(45, 27, 27, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.5);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 400;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #8b0000;
+        box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.25);
+      }
+
+      .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .analyze-btn {
+        background: #8b0000;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .analyze-btn:hover {
+        background: #a00000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+      }
+
+      .analyze-btn:disabled {
+        background: #666;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Cards Grid */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        padding: 0 2rem 2rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: rgba(45, 27, 27, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(139, 0, 0, 0.3);
+      }
+
+      .card-header {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        border-bottom: 1px solid rgba(139, 0, 0, 0.2);
+      }
+
+      .card-title {
+        color: #8b0000;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-content {
+        flex: 1;
+      }
+
+      /* Typography */
+      .bold-number {
+        font-weight: 700;
+        color: #8b0000;
+      }
+
+      .bold-text {
+        font-weight: 600;
+        color: #ffffff;
+      }
+
+      .regular-text {
+        color: #ffffff;
+        font-weight: 400;
+        margin-bottom: 0.75rem;
+      }
+
+      /* Alert Styling */
+      .alert {
+        border-radius: 10px;
+        border: none;
+        font-weight: 500;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .alert-success {
+        background: rgba(40, 167, 69, 0.2);
+        color: #4ade80;
+        border-left: 4px solid #4ade80;
+      }
+
+      .alert-danger {
+        background: rgba(220, 53, 69, 0.2);
+        color: #f87171;
+        border-left: 4px solid #f87171;
+      }
+
+      .alert-warning {
+        background: rgba(255, 193, 7, 0.2);
+        color: #fbbf24;
+        border-left: 4px solid #fbbf24;
+      }
+
+      /* List Styling */
+      ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      li {
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        padding-left: 1rem;
+        position: relative;
+      }
+
+      li:before {
+        content: "•";
+        color: #8b0000;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+      }
+
+      /* Chart Container */
+      .chart-container {
+        background: rgba(45, 27, 27, 0.9);
+        border: 1px solid rgba(139, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 0 2rem 2rem 2rem;
+        box-shadow: 0 8px 32px rgba(139, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        height: 500px;
+        position: relative;
+      }
+
+      .chart-wrapper {
+        height: 400px;
+        width: 100%;
+        position: relative;
+      }
+
+      .chart-title {
+        color: #8b0000;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Loading Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(139, 0, 0, 0.3);
+        border-radius: 50%;
+        border-top-color: #8b0000;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-container {
+        text-align: center;
+        color: #ff6b6b;
+        padding: 2rem;
+      }
+
+      /* Error Styling */
+      .error-message {
+        background: rgba(220, 53, 69, 0.2);
+        color: #f87171;
+        border-left: 4px solid #f87171;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .cards-grid {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          padding: 0 1rem 1rem 1rem;
+        }
+
+        .search-section {
+          margin: 0 1rem 1.5rem 1rem;
+        }
+
+        .search-input-group {
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .main-title {
+          font-size: 2rem;
+        }
+
+        .creator-signature {
+          position: static;
+          text-align: center;
+          margin-top: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header-container">
+        <h1 class="main-title">📈 Machine Learning AI Investor</h1>
+        <div class="creator-signature">Made by Jibraan Craig</div>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-section">
+        <h5 class="search-title">🔍 Stock Analysis</h5>
+        <div class="search-input-group">
+          <input
+            type="text"
+            id="symbol-input"
+            class="search-input"
+            placeholder="Please search any stock symbol (e.g AAPL)"
+            value="AAPL"
+          />
+          <button id="analyze-btn" class="analyze-btn">Analyse</button>
+        </div>
+      </div>
+
+      <!-- Loading Output -->
+      <div id="loading-output"></div>
+
+      <!-- Chart Container -->
+      <div id="chart-container" class="chart-container" style="display: none">
+        <h5 class="chart-title">📊 Price Chart</h5>
+        <div class="chart-wrapper">
+          <canvas id="price-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="cards-grid">
+        <!-- Top Left Card - Stock Info -->
+        <div class="card">
+          <div class="card-header">
+            <h5 id="stock-title" class="card-title">📊 AAPL - Apple Inc.</h5>
+          </div>
+          <div id="stock-info-card" class="card-body">
+            <div class="card-content">
+              <p class="regular-text">
+                💰 Current Price: <span class="bold-number">$0.00</span>
+              </p>
+              <p class="regular-text">
+                📈 Market Cap: <span class="bold-number">$0</span>
+              </p>
+              <p class="regular-text">
+                🏢 Sector: <span class="bold-text">N/A</span>
+              </p>
+              <p class="regular-text">
+                📅 Data Points: <span class="bold-number">0 days</span>
+              </p>
+              <p class="regular-text">
+                📊 Volume: <span class="bold-number">0</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Right Card - Trading Recommendation -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">🎯 Trading Recommendation</h5>
+          </div>
+          <div id="recommendation-card" class="card-body">
+            <div class="card-content">
+              <div class="alert alert-warning">HOLD - Confidence: 0%</div>
+              <h6
+                class="bold-text"
+                style="margin-top: 1rem; margin-bottom: 0.5rem"
+              >
+                Key Signals:
+              </h6>
+              <ul>
+                <li>Enter a stock symbol to get analysis</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Left Card - Technical Analysis -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">📈 Technical Analysis</h5>
+          </div>
+          <div id="technical-content" class="card-body">
+            <div class="card-content">
+              <p class="regular-text">
+                RSI: <span class="bold-number">0.0</span>
+              </p>
+              <p class="regular-text">
+                Price Change (20d): <span class="bold-number">0.0%</span>
+              </p>
+              <p class="regular-text">
+                Volume Ratio: <span class="bold-number">0.0x average</span>
+              </p>
+              <p class="regular-text">
+                MACD: <span class="bold-number">0.000</span>
+              </p>
+              <p class="regular-text">
+                Data Quality: <span class="bold-text">No data</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Right Card - Risk Assessment -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">⚠️ Risk Assessment</h5>
+          </div>
+          <div id="risk-content" class="card-body">
+            <div class="card-content">
+              <div class="alert alert-warning">Risk Level: Unknown</div>
+              <p class="regular-text">
+                Volatility: <span class="bold-number">0.0%</span>
+              </p>
+              <p class="regular-text">
+                Max Drawdown: <span class="bold-number">0.0%</span>
+              </p>
+              <p class="regular-text">
+                Sharpe Ratio: <span class="bold-number">0.00</span>
+              </p>
+              <p class="regular-text">
+                Beta: <span class="bold-text">N/A</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global variables
+      let currentChart = null
+      let stockData = null
+
+      // DOM elements
+      const symbolInput = document.getElementById("symbol-input")
+      const analyzeBtn = document.getElementById("analyze-btn")
+      const loadingOutput = document.getElementById("loading-output")
+      const stockTitle = document.getElementById("stock-title")
+      const stockInfoCard = document.getElementById("stock-info-card")
+      const recommendationCard = document.getElementById("recommendation-card")
+      const technicalContent = document.getElementById("technical-content")
+      const riskContent = document.getElementById("risk-content")
+      const chartContainer = document.getElementById("chart-container")
+      const priceChart = document.getElementById("price-chart")
+
+      // Event listeners
+      analyzeBtn.addEventListener("click", analyzeStock)
+      symbolInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          analyzeStock()
+        }
+      })
+
+      // Main analysis function
+      async function analyzeStock() {
+        const symbol = symbolInput.value.trim().toUpperCase()
+        if (!symbol) {
+          showError("Please enter a stock symbol")
+          return
+        }
+
+        showLoading("Fetching stock data...")
+        analyzeBtn.disabled = true
+
+        try {
+          // Fetch stock data
+          const data = await fetchStockData(symbol)
+          if (!data || data.length === 0) {
+            throw new Error("No data found for this symbol")
+          }
+
+          stockData = data
+
+          // Update UI
+          updateStockInfo(symbol, data)
+          updateRecommendation(data)
+          updateTechnicalAnalysis(data)
+          updateRiskAssessment(data)
+          updateChart(symbol, data)
+          updateStockTitle(symbol)
+
+          hideLoading()
+          analyzeBtn.disabled = false
+        } catch (error) {
+          showError(`Error: ${error.message}`)
+          analyzeBtn.disabled = false
+        }
+      }
+
+      // Fetch stock data from Alpha Vantage API (free tier)
+      async function fetchStockData(symbol) {
+        // Using a mock data generator for demo purposes
+        // In production, you would use a real API like Alpha Vantage
+        return generateMockData(symbol)
+      }
+
+      // Generate mock data for demonstration
+      function generateMockData(symbol) {
+        const days = 180
+        const data = []
+        let basePrice = 150 + Math.random() * 100
+
+        for (let i = 0; i < days; i++) {
+          const date = new Date()
+          date.setDate(date.getDate() - (days - i))
+
+          const volatility = 0.02
+          const change = (Math.random() - 0.5) * volatility
+          basePrice *= 1 + change
+
+          const open = basePrice * (1 + (Math.random() - 0.5) * 0.01)
+          const high = Math.max(open, basePrice) * (1 + Math.random() * 0.02)
+          const low = Math.min(open, basePrice) * (1 - Math.random() * 0.02)
+          const close = basePrice
+          const volume = 1000000 + Math.random() * 5000000
+
+          data.push({
+            date: date.toISOString().split("T")[0],
+            open: open,
+            high: high,
+            low: low,
+            close: close,
+            volume: volume,
+          })
+        }
+
+        return data
+      }
+
+      // Calculate technical indicators
+      function calculateIndicators(data) {
+        const indicators = {
+          rsi: calculateRSI(data),
+          macd: calculateMACD(data),
+          ma20: calculateMA(data, 20),
+          ma50: calculateMA(data, 50),
+          bb: calculateBollingerBands(data, 20),
+        }
+        return indicators
+      }
+
+      function calculateRSI(data, period = 14) {
+        if (data.length < period + 1) return 50
+
+        let gains = 0
+        let losses = 0
+
+        for (let i = 1; i <= period; i++) {
+          const change =
+            data[data.length - i].close - data[data.length - i - 1].close
+          if (change > 0) gains += change
+          else losses -= change
+        }
+
+        const avgGain = gains / period
+        const avgLoss = losses / period
+        const rs = avgGain / avgLoss
+        return 100 - 100 / (1 + rs)
+      }
+
+      function calculateMACD(data) {
+        const ema12 = calculateEMA(data, 12)
+        const ema26 = calculateEMA(data, 26)
+        return ema12 - ema26
+      }
+
+      function calculateEMA(data, period) {
+        const multiplier = 2 / (period + 1)
+        let ema = data[0].close
+
+        for (let i = 1; i < data.length; i++) {
+          ema = data[i].close * multiplier + ema * (1 - multiplier)
+        }
+
+        return ema
+      }
+
+      function calculateMA(data, period) {
+        if (data.length < period) return data[data.length - 1].close
+
+        const sum = data.slice(-period).reduce((acc, d) => acc + d.close, 0)
+        return sum / period
+      }
+
+      function calculateBollingerBands(data, period = 20) {
+        if (data.length < period) return { upper: 0, middle: 0, lower: 0 }
+
+        const prices = data.slice(-period).map((d) => d.close)
+        const sma = prices.reduce((a, b) => a + b, 0) / period
+        const variance =
+          prices.reduce((acc, price) => acc + Math.pow(price - sma, 2), 0) /
+          period
+        const stdDev = Math.sqrt(variance)
+
+        return {
+          upper: sma + stdDev * 2,
+          middle: sma,
+          lower: sma - stdDev * 2,
+        }
+      }
+
+      // Update UI functions
+      function updateStockInfo(symbol, data) {
+        const latest = data[data.length - 1]
+        const marketCap =
+          Math.floor(Math.random() * 1000000000000) + 100000000000
+        const sectors = [
+          "Technology",
+          "Healthcare",
+          "Finance",
+          "Consumer Goods",
+          "Energy",
+        ]
+        const sector = sectors[Math.floor(Math.random() * sectors.length)]
+
+        stockInfoCard.innerHTML = `
+                <div class="card-content">
+                    <p class="regular-text">💰 Current Price: <span class="bold-number">$${latest.close.toFixed(
+                      2
+                    )}</span></p>
+                    <p class="regular-text">📈 Market Cap: <span class="bold-number">$${marketCap.toLocaleString()}</span></p>
+                    <p class="regular-text">🏢 Sector: <span class="bold-text">${sector}</span></p>
+                    <p class="regular-text">📅 Data Points: <span class="bold-number">${
+                      data.length
+                    } days</span></p>
+                    <p class="regular-text">📊 Volume: <span class="bold-number">${latest.volume.toLocaleString()}</span></p>
+                </div>
+            `
+      }
+
+      function updateRecommendation(data) {
+        const indicators = calculateIndicators(data)
+        const latest = data[data.length - 1]
+        const prev20 = data[Math.max(0, data.length - 21)]
+
+        const priceChange = ((latest.close - prev20.close) / prev20.close) * 100
+        const rsi = indicators.rsi
+        const macd = indicators.macd
+
+        let confidence = 0
+        const signals = []
+
+        if (priceChange > 5) {
+          signals.push(`Strong uptrend (+${priceChange.toFixed(1)}%)`)
+          confidence += 25
+        } else if (priceChange > 0) {
+          signals.push(`Slight uptrend (+${priceChange.toFixed(1)}%)`)
+          confidence += 15
+        } else if (priceChange < -5) {
+          signals.push(`Strong downtrend (${priceChange.toFixed(1)}%)`)
+          confidence -= 25
+        } else {
+          signals.push(`Sideways movement (${priceChange.toFixed(1)}%)`)
+          confidence += 5
+        }
+
+        if (rsi < 30) {
+          signals.push(`Oversold (RSI: ${rsi.toFixed(1)})`)
+          confidence += 20
+        } else if (rsi > 70) {
+          signals.push(`Overbought (RSI: ${rsi.toFixed(1)})`)
+          confidence -= 20
+        }
+
+        if (macd > 0) {
+          signals.push("MACD bullish")
+          confidence += 15
+        } else {
+          signals.push("MACD bearish")
+          confidence -= 15
+        }
+
+        let recommendation, color
+        if (confidence > 30) {
+          recommendation = "BUY"
+          color = "success"
+        } else if (confidence < -30) {
+          recommendation = "SELL"
+          color = "danger"
+        } else {
+          recommendation = "HOLD"
+          color = "warning"
+        }
+
+        recommendationCard.innerHTML = `
+                <div class="card-content">
+                    <div class="alert alert-${color}">${recommendation} - Confidence: ${Math.abs(
+          confidence
+        ).toFixed(0)}%</div>
+                    <h6 class="bold-text" style="margin-top: 1rem; margin-bottom: 0.5rem;">Key Signals:</h6>
+                    <ul>
+                        ${signals
+                          .map((signal) => `<li>${signal}</li>`)
+                          .join("")}
+                    </ul>
+                </div>
+            `
+      }
+
+      function updateTechnicalAnalysis(data) {
+        const indicators = calculateIndicators(data)
+        const latest = data[data.length - 1]
+        const prev20 = data[Math.max(0, data.length - 21)]
+        const priceChange = ((latest.close - prev20.close) / prev20.close) * 100
+        const avgVolume =
+          data.reduce((sum, d) => sum + d.volume, 0) / data.length
+        const volumeRatio = latest.volume / avgVolume
+
+        technicalContent.innerHTML = `
+                <div class="card-content">
+                    <p class="regular-text">RSI: <span class="bold-number">${indicators.rsi.toFixed(
+                      1
+                    )}</span></p>
+                    <p class="regular-text">Price Change (20d): <span class="bold-number">${
+                      priceChange >= 0 ? "+" : ""
+                    }${priceChange.toFixed(1)}%</span></p>
+                    <p class="regular-text">Volume Ratio: <span class="bold-number">${volumeRatio.toFixed(
+                      1
+                    )}x average</span></p>
+                    <p class="regular-text">MACD: <span class="bold-number">${indicators.macd.toFixed(
+                      3
+                    )}</span></p>
+                    <p class="regular-text">Data Quality: <span class="bold-text">Good (${
+                      data.length
+                    } days)</span></p>
+                </div>
+            `
+      }
+
+      function updateRiskAssessment(data) {
+        const returns = []
+        for (let i = 1; i < data.length; i++) {
+          returns.push((data[i].close - data[i - 1].close) / data[i - 1].close)
+        }
+
+        const volatility =
+          Math.sqrt(
+            returns.reduce((sum, r) => sum + r * r, 0) / returns.length
+          ) *
+          Math.sqrt(252) *
+          100
+        const maxDrawdown = calculateMaxDrawdown(data)
+        const sharpeRatio =
+          (returns.reduce((sum, r) => sum + r, 0) /
+            returns.length /
+            Math.sqrt(
+              returns.reduce((sum, r) => sum + r * r, 0) / returns.length
+            )) *
+          Math.sqrt(252)
+
+        let riskLevel, riskColor
+        if (volatility > 30) {
+          riskLevel = "High"
+          riskColor = "danger"
+        } else if (volatility > 20) {
+          riskLevel = "Moderate"
+          riskColor = "warning"
+        } else {
+          riskLevel = "Low"
+          riskColor = "success"
+        }
+
+        riskContent.innerHTML = `
+                <div class="card-content">
+                    <div class="alert alert-${riskColor}">Risk Level: ${riskLevel}</div>
+                    <p class="regular-text">Volatility: <span class="bold-number">${volatility.toFixed(
+                      1
+                    )}%</span></p>
+                    <p class="regular-text">Max Drawdown: <span class="bold-number">${maxDrawdown.toFixed(
+                      1
+                    )}%</span></p>
+                    <p class="regular-text">Sharpe Ratio: <span class="bold-number">${sharpeRatio.toFixed(
+                      2
+                    )}</span></p>
+                    <p class="regular-text">Beta: <span class="bold-text">N/A</span></p>
+                </div>
+            `
+      }
+
+      function calculateMaxDrawdown(data) {
+        let maxDrawdown = 0
+        let peak = data[0].close
+
+        for (let i = 1; i < data.length; i++) {
+          if (data[i].close > peak) {
+            peak = data[i].close
+          }
+          const drawdown = ((data[i].close - peak) / peak) * 100
+          if (drawdown < maxDrawdown) {
+            maxDrawdown = drawdown
+          }
+        }
+
+        return Math.abs(maxDrawdown)
+      }
+
+      function updateChart(symbol, data) {
+        chartContainer.style.display = "block"
+
+        if (currentChart) {
+          currentChart.destroy()
+        }
+
+        const ctx = priceChart.getContext("2d")
+        const chartData = {
+          labels: data.map((d) => d.date),
+          datasets: [
+            {
+              label: "Close Price",
+              data: data.map((d) => d.close),
+              borderColor: "#8b0000",
+              backgroundColor: "rgba(139, 0, 0, 0.1)",
+              borderWidth: 2,
+              fill: false,
+            },
+          ],
+        }
+
+        currentChart = new Chart(ctx, {
+          type: "line",
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: false,
+              },
+              legend: {
+                labels: {
+                  color: "#ffffff",
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: "rgba(139, 0, 0, 0.2)",
+                },
+                ticks: {
+                  color: "#ffffff",
+                  maxTicksLimit: 10,
+                },
+              },
+              y: {
+                grid: {
+                  color: "rgba(139, 0, 0, 0.2)",
+                },
+                ticks: {
+                  color: "#ffffff",
+                },
+              },
+            },
+            layout: {
+              padding: {
+                top: 10,
+                bottom: 10,
+              },
+            },
+          },
+        })
+      }
+
+      function updateStockTitle(symbol) {
+        const companies = {
+          AAPL: "Apple Inc.",
+          MSFT: "Microsoft Corporation",
+          GOOGL: "Alphabet Inc.",
+          AMZN: "Amazon.com Inc.",
+          TSLA: "Tesla Inc.",
+          NVDA: "NVIDIA Corporation",
+          META: "Meta Platforms Inc.",
+          NFLX: "Netflix Inc.",
+        }
+
+        const companyName = companies[symbol] || symbol
+        stockTitle.textContent = `📊 ${symbol} - ${companyName}`
+      }
+
+      // Utility functions
+      function showLoading(message) {
+        loadingOutput.innerHTML = `
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    ${message}
+                </div>
+            `
+      }
+
+      function hideLoading() {
+        loadingOutput.innerHTML = ""
+      }
+
+      function showError(message) {
+        loadingOutput.innerHTML = `
+                <div class="error-message">
+                    ${message}
+                </div>
+            `
+      }
+
+      // Initialize with default data
+      window.addEventListener("load", function () {
+        // Auto-analyze AAPL on page load
+        setTimeout(() => {
+          analyzeStock()
+        }, 500)
+      })
+    </script>
+  </body>
+</html>
