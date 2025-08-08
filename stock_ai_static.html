@@ -918,8 +918,8 @@
           try {
             updateStockInfo(symbol, stockData)
             updateChart(stockData, technicalIndicators, fibonacci, aiPatterns)
-            updateRecommendation(recommendation)
-            updateTechnicalAnalysis(technicalIndicators)
+            updateRecommendation(stockData)
+            updateTechnicalAnalysis(stockData)
             updateAdvancedAnalysis({
               aiPatterns,
               elliottWaves,
@@ -1338,6 +1338,7 @@
         // Generate realistic fundamental data based on symbol
         const fundamentalData = generateFundamentalData(symbol)
         console.log("Fundamental data generated successfully")
+        return fundamentalData
       }
 
       // Generate realistic mock data based on actual market trends
