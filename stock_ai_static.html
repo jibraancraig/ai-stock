@@ -1469,56 +1469,57 @@
         console.log(`Price change: ${priceChange.toFixed(1)}%`)
         if (priceChange > 5) {
           signals.push(`Strong uptrend (+${priceChange.toFixed(1)}%)`)
-          confidence += 25
-          console.log(`Added +25 for strong uptrend`)
+          confidence += 30
+          console.log(`Added +30 for strong uptrend`)
         } else if (priceChange > 0) {
           signals.push(`Slight uptrend (+${priceChange.toFixed(1)}%)`)
-          confidence += 15
-          console.log(`Added +15 for slight uptrend`)
+          confidence += 20
+          console.log(`Added +20 for slight uptrend`)
         } else if (priceChange < -5) {
           signals.push(`Strong downtrend (${priceChange.toFixed(1)}%)`)
-          confidence -= 25
-          console.log(`Added -25 for strong downtrend`)
+          confidence -= 30
+          console.log(`Added -30 for strong downtrend`)
         } else {
           signals.push(`Sideways movement (${priceChange.toFixed(1)}%)`)
-          confidence += 5
-          console.log(`Added +5 for sideways movement`)
+          confidence += 0
+          console.log(`Added +0 for sideways movement`)
         }
 
         console.log(`RSI: ${rsi.toFixed(1)}`)
         if (rsi < 30) {
           signals.push(`Oversold (RSI: ${rsi.toFixed(1)})`)
-          confidence += 20
-          console.log(`Added +20 for oversold RSI`)
+          confidence += 25
+          console.log(`Added +25 for oversold RSI`)
         } else if (rsi > 70) {
           signals.push(`Overbought (RSI: ${rsi.toFixed(1)})`)
-          confidence -= 20
-          console.log(`Added -20 for overbought RSI`)
+          confidence -= 25
+          console.log(`Added -25 for overbought RSI`)
         }
 
         console.log(`MACD: ${macd.toFixed(3)}`)
         if (macd > 0) {
           signals.push("MACD bullish")
-          confidence += 15
-          console.log(`Added +15 for bullish MACD`)
+          confidence += 20
+          console.log(`Added +20 for bullish MACD`)
         } else {
           signals.push("MACD bearish")
-          confidence -= 15
-          console.log(`Added -15 for bearish MACD`)
+          confidence -= 20
+          console.log(`Added -20 for bearish MACD`)
         }
 
         if (volumeRatio > 1.5) {
           signals.push(`High volume (${volumeRatio.toFixed(1)}x average)`)
-          confidence += 10
+          confidence += 15
+          console.log(`Added +15 for high volume`)
         }
 
         // Determine recommendation
         let recommendation, color
         console.log(`Confidence calculation: ${confidence}`)
-        if (confidence > 15) {
+        if (confidence > 5) {
           recommendation = "BUY"
           color = "success"
-        } else if (confidence < -15) {
+        } else if (confidence < -5) {
           recommendation = "SELL"
           color = "danger"
         } else {
