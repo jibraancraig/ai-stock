@@ -715,6 +715,9 @@
 
           stockData = data
 
+          // Fetch fundamental data for comprehensive analysis
+          const fundamentalData = await fetchFundamentalData(symbol)
+
           // Generate recommendation for storage
           const recommendation = generateRecommendation(data)
 
@@ -728,6 +731,7 @@
             priceChange: recommendation.price_change,
             rsi: recommendation.rsi,
             volumeRatio: recommendation.volume_ratio,
+            fundamentalData: fundamentalData, // Add fundamental data
           }
 
           // Add to all stocks data (or update if exists)
@@ -757,48 +761,126 @@
         }
       }
 
-      // Fetch stock data - try real data first, fallback to realistic mock data
+      // Enhanced data fetching with multiple API fallbacks
       async function fetchStockData(symbol) {
+        const apis = [
+          // Primary: Yahoo Finance (most reliable)
+          async () => {
+            const response = await fetch(
+              `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`
+            )
+            const data = await response.json()
+            if (data.chart?.result?.[0]) {
+              const result = data.chart.result[0]
+              const timestamps = result.timestamp
+              const quotes = result.indicators.quote[0]
+
+              const stockData = []
+              for (let i = 0; i < timestamps.length; i++) {
+                if (quotes.close[i] !== null) {
+                  const date = new Date(timestamps[i] * 1000)
+                  stockData.push({
+                    date: date.toISOString().split("T")[0],
+                    open: quotes.open[i] || quotes.close[i],
+                    high: quotes.high[i] || quotes.close[i],
+                    low: quotes.low[i] || quotes.close[i],
+                    close: quotes.close[i],
+                    volume: quotes.volume[i] || 1000000,
+                  })
+                }
+              }
+              return stockData.length > 50 ? stockData : null
+            }
+            return null
+          },
+
+          // Secondary: Alpha Vantage (if you have API key)
+          async () => {
+            // Uncomment and add your API key
+            // const API_KEY = 'YOUR_ALPHA_VANTAGE_KEY'
+            // const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`)
+            // const data = await response.json()
+            // Process Alpha Vantage data...
+            return null
+          },
+
+          // Tertiary: IEX Cloud (if you have API key)
+          async () => {
+            // Uncomment and add your API key
+            // const API_KEY = 'YOUR_IEX_CLOUD_KEY'
+            // const response = await fetch(`https://cloud.iexapis.com/stable/stock/${symbol}/chart/1y?token=${API_KEY}`)
+            // const data = await response.json()
+            // Process IEX data...
+            return null
+          },
+        ]
+
+        // Try each API in sequence
+        for (const api of apis) {
+          try {
+            const data = await api()
+            if (data && data.length > 50) {
+              console.log(
+                `Successfully fetched real data for ${symbol} from ${api.name}`
+              )
+              return data
+            }
+          } catch (error) {
+            console.log(`API failed for ${symbol}:`, error.message)
+            continue
+          }
+        }
+
+        // If all APIs fail, throw error instead of using mock data
+        throw new Error(
+          `Unable to fetch real data for ${symbol}. Please check your internet connection and try again.`
+        )
+      }
+
+      // Fetch fundamental data for comprehensive analysis
+      async function fetchFundamentalData(symbol) {
         try {
-          // Try to fetch real data from Yahoo Finance (free, no API key needed)
           const response = await fetch(
-            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`
+            `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=financialData,defaultKeyStatistics,summaryDetail`
           )
           const data = await response.json()
 
-          if (data.chart && data.chart.result && data.chart.result[0]) {
-            const result = data.chart.result[0]
-            const timestamps = result.timestamp
-            const quotes = result.indicators.quote[0]
+          if (data.quoteSummary?.result?.[0]) {
+            const result = data.quoteSummary.result[0]
+            const financialData = result.financialData || {}
+            const keyStats = result.defaultKeyStatistics || {}
+            const summary = result.summaryDetail || {}
 
-            const stockData = []
-            for (let i = 0; i < timestamps.length; i++) {
-              if (quotes.close[i] !== null) {
-                const date = new Date(timestamps[i] * 1000)
-                stockData.push({
-                  date: date.toISOString().split("T")[0],
-                  open: quotes.open[i] || quotes.close[i],
-                  high: quotes.high[i] || quotes.close[i],
-                  low: quotes.low[i] || quotes.close[i],
-                  close: quotes.close[i],
-                  volume: quotes.volume[i] || 1000000,
-                })
-              }
-            }
+            return {
+              // Financial ratios
+              peRatio: financialData.forwardPE || 0,
+              pbRatio: financialData.priceToBook || 0,
+              debtToEquity: financialData.debtToEquity || 0,
+              returnOnEquity: financialData.returnOnEquity || 0,
+              profitMargins: financialData.profitMargins || 0,
 
-            if (stockData.length > 20) {
-              return stockData
+              // Market data
+              marketCap: summary.marketCap || 0,
+              enterpriseValue: summary.enterpriseValue || 0,
+              beta: keyStats.beta || 1,
+
+              // Growth metrics
+              revenueGrowth: financialData.revenueGrowth || 0,
+              earningsGrowth: financialData.earningsGrowth || 0,
+
+              // Dividend info
+              dividendYield: summary.dividendYield || 0,
+              payoutRatio: financialData.payoutRatio || 0,
             }
           }
         } catch (error) {
           console.log(
-            "Real data fetch failed, using realistic mock data:",
+            `Failed to fetch fundamental data for ${symbol}:`,
             error.message
           )
         }
 
-        // Fallback to realistic mock data
-        return generateMockData(symbol)
+        return null
       }
 
       // Generate realistic mock data based on actual market trends
@@ -1054,6 +1136,312 @@
           middle: sma,
           lower: sma - stdDev * 2,
         }
+      }
+
+      // Enhanced technical analysis with advanced indicators
+      function calculateAdvancedIndicators(data) {
+        const indicators = {
+          // Basic indicators
+          rsi: calculateRSI(data),
+          macd: calculateMACD(data),
+          ma20: calculateMA(data, 20),
+          ma50: calculateMA(data, 50),
+          ma200: calculateMA(data, 200),
+
+          // Advanced momentum indicators
+          stochRSI: calculateStochRSI(data),
+          williamsR: calculateWilliamsR(data),
+          cci: calculateCCI(data),
+
+          // Volatility indicators
+          bb: calculateBollingerBands(data, 20),
+          atr: calculateATR(data, 14),
+          keltner: calculateKeltnerChannels(data),
+
+          // Volume indicators
+          obv: calculateOBV(data),
+          vwap: calculateVWAP(data),
+          mfi: calculateMFI(data),
+
+          // Trend indicators
+          adx: calculateADX(data),
+          ichimoku: calculateIchimoku(data),
+
+          // Support/Resistance
+          support: calculateSupportLevels(data),
+          resistance: calculateResistanceLevels(data),
+
+          // Pattern recognition
+          patterns: detectCandlestickPatterns(data),
+        }
+
+        return indicators
+      }
+
+      // Stochastic RSI
+      function calculateStochRSI(data, period = 14) {
+        const rsiValues = []
+        for (let i = period; i < data.length; i++) {
+          rsiValues.push(calculateRSI(data.slice(0, i + 1)))
+        }
+
+        if (rsiValues.length < period) return 50
+
+        const recentRSI = rsiValues.slice(-period)
+        const minRSI = Math.min(...recentRSI)
+        const maxRSI = Math.max(...recentRSI)
+
+        return (
+          ((rsiValues[rsiValues.length - 1] - minRSI) / (maxRSI - minRSI)) * 100
+        )
+      }
+
+      // Williams %R
+      function calculateWilliamsR(data, period = 14) {
+        if (data.length < period) return -50
+
+        const recent = data.slice(-period)
+        const highest = Math.max(...recent.map((d) => d.high))
+        const lowest = Math.min(...recent.map((d) => d.low))
+        const current = data[data.length - 1].close
+
+        return ((highest - current) / (highest - lowest)) * -100
+      }
+
+      // Commodity Channel Index
+      function calculateCCI(data, period = 20) {
+        if (data.length < period) return 0
+
+        const recent = data.slice(-period)
+        const typicalPrices = recent.map((d) => (d.high + d.low + d.close) / 3)
+        const sma = typicalPrices.reduce((a, b) => a + b, 0) / period
+        const meanDeviation =
+          typicalPrices.reduce((sum, tp) => sum + Math.abs(tp - sma), 0) /
+          period
+
+        const currentTP =
+          (data[data.length - 1].high +
+            data[data.length - 1].low +
+            data[data.length - 1].close) /
+          3
+        return (currentTP - sma) / (0.015 * meanDeviation)
+      }
+
+      // Average True Range
+      function calculateATR(data, period = 14) {
+        if (data.length < period + 1) return 0
+
+        const trueRanges = []
+        for (let i = 1; i < data.length; i++) {
+          const high = data[i].high
+          const low = data[i].low
+          const prevClose = data[i - 1].close
+
+          const tr1 = high - low
+          const tr2 = Math.abs(high - prevClose)
+          const tr3 = Math.abs(low - prevClose)
+
+          trueRanges.push(Math.max(tr1, tr2, tr3))
+        }
+
+        const recentTR = trueRanges.slice(-period)
+        return recentTR.reduce((a, b) => a + b, 0) / period
+      }
+
+      // Keltner Channels
+      function calculateKeltnerChannels(data, period = 20) {
+        const atr = calculateATR(data, period)
+        const ema = calculateEMA(data, period)
+
+        return {
+          upper: ema + 2 * atr,
+          middle: ema,
+          lower: ema - 2 * atr,
+        }
+      }
+
+      // On-Balance Volume
+      function calculateOBV(data) {
+        let obv = 0
+        for (let i = 1; i < data.length; i++) {
+          if (data[i].close > data[i - 1].close) {
+            obv += data[i].volume
+          } else if (data[i].close < data[i - 1].close) {
+            obv -= data[i].volume
+          }
+        }
+        return obv
+      }
+
+      // Volume Weighted Average Price
+      function calculateVWAP(data) {
+        let cumulativeTPV = 0
+        let cumulativeVolume = 0
+
+        for (const day of data) {
+          const typicalPrice = (day.high + day.low + day.close) / 3
+          cumulativeTPV += typicalPrice * day.volume
+          cumulativeVolume += day.volume
+        }
+
+        return cumulativeVolume > 0 ? cumulativeTPV / cumulativeVolume : 0
+      }
+
+      // Money Flow Index
+      function calculateMFI(data, period = 14) {
+        if (data.length < period + 1) return 50
+
+        const moneyFlows = []
+        for (let i = 1; i < data.length; i++) {
+          const typicalPrice = (data[i].high + data[i].low + data[i].close) / 3
+          const prevTypicalPrice =
+            (data[i - 1].high + data[i - 1].low + data[i - 1].close) / 3
+
+          const moneyFlow = typicalPrice * data[i].volume
+          moneyFlows.push({
+            flow: moneyFlow,
+            positive: typicalPrice > prevTypicalPrice,
+          })
+        }
+
+        const recent = moneyFlows.slice(-period)
+        const positiveFlow = recent
+          .filter((mf) => mf.positive)
+          .reduce((sum, mf) => sum + mf.flow, 0)
+        const negativeFlow = recent
+          .filter((mf) => !mf.positive)
+          .reduce((sum, mf) => sum + mf.flow, 0)
+
+        const moneyRatio = positiveFlow / negativeFlow
+        return 100 - 100 / (1 + moneyRatio)
+      }
+
+      // Average Directional Index
+      function calculateADX(data, period = 14) {
+        if (data.length < period + 1) return 0
+
+        const directionalMovements = []
+        for (let i = 1; i < data.length; i++) {
+          const highDiff = data[i].high - data[i - 1].high
+          const lowDiff = data[i - 1].low - data[i].low
+
+          let plusDM = 0
+          let minusDM = 0
+
+          if (highDiff > lowDiff && highDiff > 0) {
+            plusDM = highDiff
+          }
+          if (lowDiff > highDiff && lowDiff > 0) {
+            minusDM = lowDiff
+          }
+
+          directionalMovements.push({ plusDM, minusDM })
+        }
+
+        const recent = directionalMovements.slice(-period)
+        const avgPlusDM =
+          recent.reduce((sum, dm) => sum + dm.plusDM, 0) / period
+        const avgMinusDM =
+          recent.reduce((sum, dm) => sum + dm.minusDM, 0) / period
+
+        const dx =
+          (Math.abs(avgPlusDM - avgMinusDM) / (avgPlusDM + avgMinusDM)) * 100
+        return dx
+      }
+
+      // Ichimoku Cloud
+      function calculateIchimoku(data) {
+        if (data.length < 52) return null
+
+        const high9 = Math.max(...data.slice(-9).map((d) => d.high))
+        const low9 = Math.min(...data.slice(-9).map((d) => d.low))
+        const tenkan = (high9 + low9) / 2
+
+        const high26 = Math.max(...data.slice(-26).map((d) => d.high))
+        const low26 = Math.min(...data.slice(-26).map((d) => d.low))
+        const kijun = (high26 + low26) / 2
+
+        const senkouA = (tenkan + kijun) / 2
+        const senkouB =
+          (Math.max(...data.slice(-52).map((d) => d.high)) +
+            Math.min(...data.slice(-52).map((d) => d.low))) /
+          2
+
+        return { tenkan, kijun, senkouA, senkouB }
+      }
+
+      // Support and Resistance Levels
+      function calculateSupportLevels(data) {
+        const lows = data.map((d) => d.low)
+        const supportLevels = []
+
+        for (let i = 2; i < lows.length - 2; i++) {
+          if (
+            lows[i] < lows[i - 1] &&
+            lows[i] < lows[i - 2] &&
+            lows[i] < lows[i + 1] &&
+            lows[i] < lows[i + 2]
+          ) {
+            supportLevels.push(lows[i])
+          }
+        }
+
+        return supportLevels.slice(-5) // Return last 5 support levels
+      }
+
+      function calculateResistanceLevels(data) {
+        const highs = data.map((d) => d.high)
+        const resistanceLevels = []
+
+        for (let i = 2; i < highs.length - 2; i++) {
+          if (
+            highs[i] > highs[i - 1] &&
+            highs[i] > highs[i - 2] &&
+            highs[i] > highs[i + 1] &&
+            highs[i] > highs[i + 2]
+          ) {
+            resistanceLevels.push(highs[i])
+          }
+        }
+
+        return resistanceLevels.slice(-5) // Return last 5 resistance levels
+      }
+
+      // Candlestick Pattern Detection
+      function detectCandlestickPatterns(data) {
+        if (data.length < 3) return []
+
+        const patterns = []
+        const recent = data.slice(-3)
+
+        // Doji
+        const current = recent[recent.length - 1]
+        const bodySize = Math.abs(current.close - current.open)
+        const totalRange = current.high - current.low
+
+        if (bodySize / totalRange < 0.1) {
+          patterns.push("Doji")
+        }
+
+        // Hammer
+        if (
+          bodySize / totalRange < 0.3 &&
+          (current.high - Math.max(current.open, current.close)) / totalRange <
+            0.1
+        ) {
+          patterns.push("Hammer")
+        }
+
+        // Shooting Star
+        if (
+          bodySize / totalRange < 0.3 &&
+          (Math.min(current.open, current.close) - current.low) / totalRange <
+            0.1
+        ) {
+          patterns.push("Shooting Star")
+        }
+
+        return patterns
       }
 
       // Update UI functions

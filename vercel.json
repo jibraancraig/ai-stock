@@ -1,20 +1,13 @@
 {
   "version": 2,
-  "name": "stock-ai-dashboard",
-  "builds": [
+  "rewrites": [
     {
-      "src": "stock_ai_static.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/stock_ai_static.html"
+      "source": "/",
+      "destination": "/stock_ai_static.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "/stock_ai_static.html"
+      "source": "/(.*)",
+      "destination": "/stock_ai_static.html"
     }
   ],
   "headers": [
