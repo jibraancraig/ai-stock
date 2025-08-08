@@ -856,6 +856,7 @@
           )
 
           // Update UI with comprehensive analysis
+          updateStockInfo(symbolInput.value.trim().toUpperCase(), stockData)
           updateChart(stockData, technicalIndicators, fibonacci, aiPatterns)
           updateRecommendation(recommendation)
           updateTechnicalAnalysis(technicalIndicators)
@@ -868,6 +869,7 @@
             multiTimeframeData,
             fundamentalData,
           })
+          updateStockTitle(symbolInput.value.trim().toUpperCase())
 
           // Store for filtering
           const stockAnalysis = {
@@ -2589,8 +2591,9 @@
 
       // Initialize with default data
       window.addEventListener("load", function () {
-        // Auto-analyze AAPL on page load
+        // Set default symbol and auto-analyze AAPL on page load
         setTimeout(() => {
+          symbolInput.value = "AAPL"
           analyzeStock()
         }, 500)
 
