@@ -3677,9 +3677,9 @@
             html += `
               <div class="pattern-item">
                 <span class="pattern-name">${pattern.pattern}</span>
-                <span class="pattern-confidence">${pattern.confidence.toFixed(
-                  1
-                )}%</span>
+                <span class="pattern-confidence">${(
+                  pattern.confidence || 0
+                ).toFixed(1)}%</span>
                 <span class="pattern-signal badge-${signalColor}">${
               pattern.signal
             }</span>
@@ -3703,9 +3703,9 @@
                 <span class="wave-number">Wave ${wave.wave}</span>
                 <span class="wave-direction">${direction}</span>
                 <span class="wave-length">${wave.length} periods</span>
-                <span class="wave-range">$${wave.startPrice.toFixed(
+                <span class="wave-range">$${(wave.startPrice || 0).toFixed(
                   2
-                )} - $${wave.endPrice.toFixed(2)}</span>
+                )} - $${(wave.endPrice || 0).toFixed(2)}</span>
               </div>
             `
           })
@@ -3720,9 +3720,9 @@
             html += `
               <div class="harmonic-item">
                 <span class="harmonic-name">${pattern.pattern}</span>
-                <span class="harmonic-confidence">${pattern.confidence.toFixed(
-                  1
-                )}%</span>
+                <span class="harmonic-confidence">${(
+                  pattern.confidence || 0
+                ).toFixed(1)}%</span>
               </div>
             `
           })
@@ -3733,14 +3733,12 @@
         if (analysis.volumeProfile) {
           html += "<h3>�� Volume Profile</h3>"
           html += '<div class="volume-profile-section">'
-          html += `<p><strong>POC:</strong> $${analysis.volumeProfile.poc.price.toFixed(
+          html += `<p><strong>POC:</strong> $${(analysis.volumeProfile.poc?.price || 0).toFixed(
             2
           )}</p>`
-          html += `<p><strong>Value Area:</strong> $${analysis.volumeProfile.valueArea[0].price.toFixed(
+          html += `<p><strong>Value Area:</strong> $${(analysis.volumeProfile.valueArea?.[0]?.price || 0).toFixed(
             2
-          )} - $${analysis.volumeProfile.valueArea[
-            analysis.volumeProfile.valueArea.length - 1
-          ].price.toFixed(2)}</p>`
+          )} - $${(analysis.volumeProfile.valueArea?.[analysis.volumeProfile.valueArea.length - 1]?.price || 0).toFixed(2)}</p>`
           html += "</div>"
         }
 
