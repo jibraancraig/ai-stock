@@ -1360,19 +1360,20 @@
 
         let basePrice = basePrices[symbol] || 150 + Math.random() * 100
 
-        // Realistic market trends (monthly returns)
+        // Enhanced market trends (monthly returns) - more pronounced
         const monthlyTrends = {
-          AAPL: 0.02, // ~2% monthly growth
-          MSFT: 0.03, // ~3% monthly growth
-          GOOGL: -0.01, // ~-1% monthly decline
-          AMZN: 0.04, // ~4% monthly growth
-          TSLA: -0.03, // ~-3% monthly decline
-          NVDA: 0.05, // ~5% monthly growth
-          META: 0.02, // ~2% monthly growth
-          NFLX: -0.02, // ~-2% monthly decline
+          AAPL: 0.08, // ~8% monthly growth
+          MSFT: 0.12, // ~12% monthly growth
+          GOOGL: -0.06, // ~-6% monthly decline
+          AMZN: 0.15, // ~15% monthly growth
+          TSLA: -0.12, // ~-12% monthly decline
+          NVDA: 0.2, // ~20% monthly growth
+          META: 0.08, // ~8% monthly growth
+          NFLX: -0.08, // ~-8% monthly decline
         }
 
-        const monthlyTrend = monthlyTrends[symbol] || 0
+        const monthlyTrend =
+          monthlyTrends[symbol] || (Math.random() > 0.5 ? 0.05 : -0.05)
         const dailyTrend = monthlyTrend / 30 // Convert to daily trend
 
         for (let i = 0; i < days; i++) {
@@ -1465,34 +1466,45 @@
         let confidence = 0
         const signals = []
 
+        console.log(`Price change: ${priceChange.toFixed(1)}%`)
         if (priceChange > 5) {
           signals.push(`Strong uptrend (+${priceChange.toFixed(1)}%)`)
           confidence += 25
+          console.log(`Added +25 for strong uptrend`)
         } else if (priceChange > 0) {
           signals.push(`Slight uptrend (+${priceChange.toFixed(1)}%)`)
           confidence += 15
+          console.log(`Added +15 for slight uptrend`)
         } else if (priceChange < -5) {
           signals.push(`Strong downtrend (${priceChange.toFixed(1)}%)`)
           confidence -= 25
+          console.log(`Added -25 for strong downtrend`)
         } else {
           signals.push(`Sideways movement (${priceChange.toFixed(1)}%)`)
           confidence += 5
+          console.log(`Added +5 for sideways movement`)
         }
 
+        console.log(`RSI: ${rsi.toFixed(1)}`)
         if (rsi < 30) {
           signals.push(`Oversold (RSI: ${rsi.toFixed(1)})`)
           confidence += 20
+          console.log(`Added +20 for oversold RSI`)
         } else if (rsi > 70) {
           signals.push(`Overbought (RSI: ${rsi.toFixed(1)})`)
           confidence -= 20
+          console.log(`Added -20 for overbought RSI`)
         }
 
+        console.log(`MACD: ${macd.toFixed(3)}`)
         if (macd > 0) {
           signals.push("MACD bullish")
           confidence += 15
+          console.log(`Added +15 for bullish MACD`)
         } else {
           signals.push("MACD bearish")
           confidence -= 15
+          console.log(`Added -15 for bearish MACD`)
         }
 
         if (volumeRatio > 1.5) {
@@ -1502,10 +1514,11 @@
 
         // Determine recommendation
         let recommendation, color
-        if (confidence > 20) {
+        console.log(`Confidence calculation: ${confidence}`)
+        if (confidence > 15) {
           recommendation = "BUY"
           color = "success"
-        } else if (confidence < -20) {
+        } else if (confidence < -15) {
           recommendation = "SELL"
           color = "danger"
         } else {
@@ -3781,13 +3794,13 @@
         advancedContainer.innerHTML = html
       }
 
-            // Enhanced chart update with advanced features
+      // Enhanced chart update with advanced features
       function updateChart(data, indicators, fibonacci, aiPatterns) {
         console.log("Updating chart with data:", data ? data.length : "no data")
-        
+
         // Show chart container
         chartContainer.style.display = "block"
-        
+
         const ctx = document.getElementById("price-chart")
         if (!ctx || !data || data.length === 0) {
           console.error("Chart update failed: missing canvas or data")
