@@ -1980,22 +1980,22 @@
       // Generate multi-timeframe data
       async function fetchMultiTimeframeData(symbol) {
         console.log("Generating multi-timeframe data...")
-        
+
         const timeframes = {
           "1H": "1h",
           "4H": "4h",
           "1D": "1d",
           "1W": "5d",
         }
-        
+
         const data = {}
-        
+
         for (const [label, interval] of Object.entries(timeframes)) {
           // Generate realistic data for each timeframe
           const timeframeData = generateRealisticMockData(symbol).slice(-30) // Last 30 days
           data[label] = timeframeData
         }
-        
+
         console.log("Multi-timeframe data generated successfully")
         return data
       }
@@ -2823,7 +2823,7 @@
           const features = this.extractAllFeatures(data)
           const patterns = {
             chart: this.detectChartPatterns(data, features),
-            candlestick: this.detectCandlestickPatterns(data, features),
+            candlestick: detectCandlestickPatterns(data),
             breakout: this.detectBreakoutPatterns(data, features),
             reversal: this.detectReversalPatterns(data, features),
             harmonic: detectHarmonicPatterns(data),
