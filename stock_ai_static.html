@@ -1515,21 +1515,31 @@
 
         // Determine recommendation
         let recommendation, color
-        console.log(`Confidence calculation: ${confidence}`)
+        console.log(`Final confidence calculation: ${confidence}`)
+        console.log(
+          `Price change: ${priceChange.toFixed(1)}%, RSI: ${rsi.toFixed(
+            1
+          )}, MACD: ${macd.toFixed(3)}`
+        )
+
         if (confidence > 5) {
           recommendation = "BUY"
           color = "success"
+          console.log(`→ BUY signal (confidence: ${confidence})`)
         } else if (confidence < -5) {
           recommendation = "SELL"
           color = "danger"
+          console.log(`→ SELL signal (confidence: ${confidence})`)
         } else {
           recommendation = "HOLD"
           color = "warning"
+          console.log(`→ HOLD signal (confidence: ${confidence})`)
         }
 
         return {
           recommendation: recommendation,
           confidence: Math.abs(confidence),
+          confidence_raw: confidence, // Keep the raw value for debugging
           signals: signals,
           color: color,
           price_change: priceChange,
@@ -2440,6 +2450,7 @@
 
       function updateRecommendation(data) {
         const recommendation = generateRecommendation(data)
+        console.log("Generated recommendation:", recommendation)
 
         recommendationCard.innerHTML = `
                 <div class="card-content">
