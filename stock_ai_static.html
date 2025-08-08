@@ -779,55 +779,113 @@
       let stockData = null
       let allStocksData = [] // Store all analyzed stocks
       let currentFilter = "all" // Current filter state
+      let symbolInput,
+        analyzeBtn,
+        loadingOutput,
+        stockTitle,
+        stockInfoCard,
+        recommendationCard,
+        technicalContent,
+        riskContent,
+        chartContainer,
+        priceChart
+      let filterAll,
+        filterBuy,
+        filterHold,
+        filterSell,
+        stockListSection,
+        stockList
 
-      // DOM elements
-      const symbolInput = document.getElementById("symbol-input")
-      const analyzeBtn = document.getElementById("analyze-btn")
-      const loadingOutput = document.getElementById("loading-output")
-      const stockTitle = document.getElementById("stock-title")
-      const stockInfoCard = document.getElementById("stock-info-card")
-      const recommendationCard = document.getElementById("recommendation-card")
-      const technicalContent = document.getElementById("technical-content")
-      const riskContent = document.getElementById("risk-content")
-      const chartContainer = document.getElementById("chart-container")
-      const priceChart = document.getElementById("price-chart")
+      // Initialize DOM elements and event listeners
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM elements
+        symbolInput = document.getElementById("symbol-input")
+        analyzeBtn = document.getElementById("analyze-btn")
+        loadingOutput = document.getElementById("loading-output")
+        stockTitle = document.getElementById("stock-title")
+        stockInfoCard = document.getElementById("stock-info-card")
+        recommendationCard = document.getElementById("recommendation-card")
+        technicalContent = document.getElementById("technical-content")
+        riskContent = document.getElementById("risk-content")
+        chartContainer = document.getElementById("chart-container")
+        priceChart = document.getElementById("price-chart")
 
-      // Filter elements
-      const filterAll = document.getElementById("filter-all")
-      const filterBuy = document.getElementById("filter-buy")
-      const filterHold = document.getElementById("filter-hold")
-      const filterSell = document.getElementById("filter-sell")
-      const stockListSection = document.getElementById("stock-list-section")
-      const stockList = document.getElementById("stock-list")
+        // Filter elements
+        filterAll = document.getElementById("filter-all")
+        filterBuy = document.getElementById("filter-buy")
+        filterHold = document.getElementById("filter-hold")
+        filterSell = document.getElementById("filter-sell")
+        stockListSection = document.getElementById("stock-list-section")
+        stockList = document.getElementById("stock-list")
 
-      // Event listeners
-      analyzeBtn.addEventListener("click", analyzeStock)
-      symbolInput.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") {
-          analyzeStock()
+        // Check if all elements exist
+        if (!symbolInput || !analyzeBtn) {
+          console.error("Required DOM elements not found")
+          return
         }
-      })
 
-      // Filter event listeners
-      filterAll.addEventListener("click", () => setFilter("all"))
-      filterBuy.addEventListener("click", () => setFilter("buy"))
-      filterHold.addEventListener("click", () => setFilter("hold"))
-      filterSell.addEventListener("click", () => setFilter("sell"))
+        // Event listeners
+        analyzeBtn.addEventListener("click", analyzeStock)
+        symbolInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            analyzeStock()
+          }
+        })
+
+        // Filter event listeners
+        if (filterAll)
+          filterAll.addEventListener("click", () => setFilter("all"))
+        if (filterBuy)
+          filterBuy.addEventListener("click", () => setFilter("buy"))
+        if (filterHold)
+          filterHold.addEventListener("click", () => setFilter("hold"))
+        if (filterSell)
+          filterSell.addEventListener("click", () => setFilter("sell"))
+
+        // Auto-analyze AAPL on page load
+        setTimeout(() => {
+          if (symbolInput) {
+            symbolInput.value = "AAPL"
+            analyzeStock()
+          }
+        }, 1000)
+      })
 
       // Main analysis function
       async function analyzeStock() {
+        if (!symbolInput || !symbolInput.value.trim()) {
+          showError("Please enter a stock symbol")
+          return
+        }
+
+        const symbol = symbolInput.value.trim().toUpperCase()
+        console.log("Starting analysis for:", symbol)
+
         try {
           showLoading(true)
 
           // Fetch comprehensive data
-          const stockData = await fetchStockData(
-            symbolInput.value.trim().toUpperCase()
+          console.log("Fetching stock data...")
+          const stockData = await fetchStockData(symbol)
+          console.log(
+            "Stock data received:",
+            stockData ? stockData.length : 0,
+            "data points"
           )
-          const fundamentalData = await fetchFundamentalData(
-            symbolInput.value.trim().toUpperCase()
+
+          console.log("Fetching fundamental data...")
+          const fundamentalData = await fetchFundamentalData(symbol)
+          console.log(
+            "Fundamental data received:",
+            fundamentalData ? "yes" : "no"
           )
-          const multiTimeframeData = await fetchMultiTimeframeData(
-            symbolInput.value.trim().toUpperCase()
+
+          console.log("Fetching multi-timeframe data...")
+          const multiTimeframeData = await fetchMultiTimeframeData(symbol)
+          console.log(
+            "Multi-timeframe data received:",
+            multiTimeframeData ? Object.keys(multiTimeframeData).length : 0,
+            "timeframes"
           )
 
           if (!stockData || stockData.length < 50) {
@@ -856,20 +914,26 @@
           )
 
           // Update UI with comprehensive analysis
-          updateStockInfo(symbolInput.value.trim().toUpperCase(), stockData)
-          updateChart(stockData, technicalIndicators, fibonacci, aiPatterns)
-          updateRecommendation(recommendation)
-          updateTechnicalAnalysis(technicalIndicators)
-          updateAdvancedAnalysis({
-            aiPatterns,
-            elliottWaves,
-            harmonicPatterns,
-            volumeProfile,
-            orderFlow,
-            multiTimeframeData,
-            fundamentalData,
-          })
-          updateStockTitle(symbolInput.value.trim().toUpperCase())
+          console.log('Updating UI...')
+          try {
+            updateStockInfo(symbol, stockData)
+            updateChart(stockData, technicalIndicators, fibonacci, aiPatterns)
+            updateRecommendation(recommendation)
+            updateTechnicalAnalysis(technicalIndicators)
+            updateAdvancedAnalysis({
+              aiPatterns,
+              elliottWaves,
+              harmonicPatterns,
+              volumeProfile,
+              orderFlow,
+              multiTimeframeData,
+              fundamentalData,
+            })
+            updateStockTitle(symbol)
+            console.log('UI updated successfully')
+          } catch (uiError) {
+            console.error('UI update failed:', uiError)
+          }
 
           // Store for filtering
           const stockAnalysis = {
@@ -2591,13 +2655,7 @@
 
       // Initialize with default data
       window.addEventListener("load", function () {
-        // Set default symbol and auto-analyze AAPL on page load
-        setTimeout(() => {
-          symbolInput.value = "AAPL"
-          analyzeStock()
-        }, 500)
-
-        // Add some popular stocks for demonstration
+        // Add some popular stocks for demonstration (after initial AAPL analysis)
         setTimeout(() => {
           const popularStocks = [
             "MSFT",
@@ -2610,11 +2668,13 @@
           ]
           popularStocks.forEach((symbol, index) => {
             setTimeout(() => {
-              symbolInput.value = symbol
-              analyzeStock()
-            }, (index + 1) * 1000) // Analyze each stock with 1 second delay
+              if (symbolInput) {
+                symbolInput.value = symbol
+                analyzeStock()
+              }
+            }, (index + 2) * 1000) // Analyze each stock with 2 second delay after initial
           })
-        }, 2000)
+        }, 3000)
       })
 
       // AI-Powered Pattern Recognition System
